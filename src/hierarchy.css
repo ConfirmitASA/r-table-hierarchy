@@ -1,0 +1,90 @@
+/*Hierarchycal styles*/
+/*coloring for even columns from end of table to compensate for uneven td count because of block headers*/
+.reportal-hierarchy-table>tbody>tr>td[class*=_dc]:nth-last-child(even){background: var(--primary-background-color,#f6f6f6);}
+.reportal-hierarchy-table tr.firstInBlock:not(:first-child)>td{
+  border-top:3px var(--divider-color,#ccc) double !important;
+  padding-top:2px !important;
+}
+.reportal-hierarchy-table tr.level0 {
+  font-weight: bold;
+}
+.reportal-hierarchy-table tr.firstInBlock>td:first-child {
+  /*dirty hack for breakdown first column to stay really narrow*/
+  white-space: normal;
+  background: var(--light-primary-color,#f0f2f5) ;
+  vertical-align: top;
+  width:30px;
+  padding:8px !important;
+}
+
+.reportal-hierarchy-table .reportal-hierarchical-header{
+  padding-right:100px;
+}
+
+.reportal-hierarchy-table td.reportal-hierarchical-cell {padding-left:0}
+
+.reportal-hierarchy-table tr.level1>td.reportal-hierarchical-cell {
+  padding-left: 20px;
+}
+
+.reportal-hierarchy-table tr.level2>td.reportal-hierarchical-cell {
+  padding-left: 40px;
+}
+
+.reportal-collapse-button {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+}
+.reportal-collapsed-row .reportal-collapse-button:before,
+.reportal-uncollapsed-row .reportal-collapse-button:before{
+  content:'';
+  position: absolute;
+  border-color: var(--secondary-text-color,#737B8E) transparent transparent;
+  border-style: solid;
+  border-width: 5px 5px 0;
+  display: block;
+  height: 0;
+  width: 0;
+  left:30%;
+  top:33%;
+  transition: .25s transform ease-in-out;
+}
+
+.reportal-collapsed-row .reportal-collapse-button,
+.reportal-uncollapsed-row .reportal-collapse-button{
+  cursor: pointer;
+}
+
+.reportal-collapsed-row .reportal-collapse-button:before{
+  transform:rotate(-90deg);
+}
+
+.reportal-no-children .reportal-collapse-button:before {
+  content:'';
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--disabled-text-color,#ccc);
+  border-radius: 50%;
+  position:absolute;
+  top:33%;
+  left:30%;
+}
+
+.reportal-hierarchy-table:not(.reportal-heirarchy-flat-view)>tbody>tr.reportal-hidden-row>td:not([rowspan]){
+  display: none;
+}
+
+.reportal-heirarchy-flat-view>tbody>tr>td{
+  display:table-cell;
+&.reportal-hierarchical-cell{
+   padding-left:8px !important;
+&>.reportal-collapse-button{display:none}
+}
+}
+.reportal-hierarchy-searching>tbody>tr{
+&>td:not([rowspan]){display:none;}
+&.matched-search:not(.reportal-hidden-row)>td{display:table-cell}
+}

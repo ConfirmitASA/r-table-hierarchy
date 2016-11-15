@@ -40,7 +40,7 @@ config.postcss =  function (webpack) {
     })
   ];
 };
-config.watch=true;
+//config.watch=true;
 
 
 module.exports = config;
