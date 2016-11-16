@@ -1,8 +1,11 @@
 /**
  * Created by IvanP on 16.11.2016.
  */
-import Highlight from 'r-highlight';
+import Highlight from 'r-highlight/src/main';
 import HierarchyBase from './hierarchy-base';
+import AggregatedTable from 'r-aggregated-table/src/aggregated-table';
+import HierarchyRowMeta from './hierarchy-row-meta';
+
 
 /**
  * This class initializes a prototype for search functionality for hierarchical column
@@ -15,9 +18,9 @@ import HierarchyBase from './hierarchy-base';
  * @param {Boolean} [visible=false] - search box is visible
  * @param {Boolean} [highlight=true] - search matches will be highlighted
  * */
-class TableSearch{
+export default class TableSearch{
   constructor(options){
-    let {source, refSource, immediate = false, timeout=300, searching=false, query='', target=null, visible=false, highlight=true, placeholder = 'Search categories...'} = options;
+    let {source, refSource, immediate = false, timeout=300, searching=false, query='', target=null, visible=false, highlight=true, placeholder = 'Search categories...', data, multidimensional} = options;
     this.source = source;
     this.refSource = refSource;
     this.timeout = timeout;
@@ -32,6 +35,8 @@ class TableSearch{
     [source,refSource].forEach(src=>{
       this.addSearchBox(src.querySelector('.reportal-hierarchical-header'), placeholder)
     });
+    this.data = data;
+    this.multidimensional = multidimensional;
   }
 
   set query(val){
@@ -139,6 +144,60 @@ class TableSearch{
   }
 
   /**
+   * Wrapping function that debounces search, sets `search.searching` [(click for info)]{@link HierarchyTable#setupSearch} and calls `hierarchy.searchRowheaders` [(click for info)]{@link HierarchyTable#searchRowheaders}
+   * @return {Function}
+   * */
+  search(){
+    return HierarchyBase.debounce(()=>{
+      console.log(this);
+      let value = this.query;
+      if(value.length>0){
+        if(!this.searching){this.searching=true;}
+        this.searchRowheaders(value);
+      } else {
+        this.searching=false;
+      }
+    }, this.timeout, this.immediate);
+  }
+
+  /**
+   * This function runs through the data and looks for a match in `row.meta.flatName` (for flat view) or `row.meta.name` (for tree view) against the `str`.
+   * @param {String} str - expression to match against (is contained in `this.search.query`)
+   * */
+  searchRowheaders(str){
+    let regexp = new RegExp('('+str+')','i');
+    AggregatedTable.dimensionalDataIterator(this.data,this.multidimensional,(dataDimension)=>{
+      dataDimension.forEach(dataItem=>{
+        let row = dataItem[0].row;
+        if(this.flat){
+          HierarchyRowMeta.setMatches.call(row,regexp.test(row.flatName));
+          HierarchyRowMeta.setHidden.call(row,false)
+        } else {
+          // if it has a parent and maybe not matches and the parent has match, then let it and its children be displayed
+          let matches = regexp.test(row.name);
+          if(row.parent!=null && !matches && row.parent.matches){
+            // just in case it's been covered in previous iteration
+            if(!row.matches){HierarchyRowMeta.setMatches.call(row,true)}
+            else if(row.hasChildren && !row.collapsed){
+              HierarchyRowMeta.setCollapsed.call(row,true); //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
+            }
+            HierarchyRowMeta.setHidden.call(row,row.parent.collapsed);
+          } else { // if has no parent or parent not matched let's test it, maybe it can have a match, if so, display his parents and children
+            HierarchyRowMeta.setMatches.call(row,matches);
+            if(matches){
+              HierarchyBase.uncollapseParents.call(row);
+            }
+          }
+        }
+      });
+    });
+
+    if(this.highlight)this.highlight.apply(str);
+  }
+
+
+
+  /**
    * Allows focus to follow from a search field into floating header and back when header disappears.
    * */
   focusFollows(){
@@ -157,7 +216,4 @@ class TableSearch{
       });
     }
   }
-
-
-
 }

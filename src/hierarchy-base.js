@@ -71,6 +71,39 @@ class HierarchyBase extends AggregatedTable {
   }
 
   /**
+   * This function adds toggle buttons for hierarchy (to toggle the [flat-view/tree-view]{@link HierarchyTable#flat} mode) to the hierarchy column (here available as `this.hierarchy.column`).
+   * This function is executed for both the original table and the cloned header.
+   * @param {HTMLTableCellElement} host - reference to the cell which acts as a header for hierarchy column
+   * @param {String} buttonClassChunk - the part of the icon-class name that follows the `.icon-`. Is used to reference the icon class, but also used for the button without the `.icon-` prefix
+   * @param {Boolean} flat - Boolean to be set on [`hierarchy.flat`]{@link HierarchyTable#flat} when this button is clicked.
+   * @param {String} [title] - the title that describes what the button does to be show on hover (is set to native attribute `title` on the button element)
+   * */
+  addToggleButton(host,buttonClassChunk,flat,title){
+    let button = document.createElement('span'),
+        buttonContainer = document.createElement('span');
+    button.classList.add(`icon-${buttonClassChunk}`);
+    let containerClasses = ['btn',buttonClassChunk];
+    if(flat==this.flat){containerClasses.push('active')}
+    containerClasses.forEach(name=>buttonContainer.classList.add(name));
+    buttonContainer.title=title;
+    buttonContainer.addEventListener('click',()=>{
+      if(flat==this.flat){return;} else {
+        this.constructor.setFlat.call(this,flat);
+        // we want to get all hier. toggle buttons in both cloned header and the table itself
+        let hierColumnButtons = this.source.parentNode.querySelectorAll('.reportal-hierarchical-header>.btn:not(.hierarchy-search)');
+        if(hierColumnButtons){
+          [].slice.call(hierColumnButtons).forEach((item)=>{
+          //By default one button is already `.active`, we need just to swap the `.active` class on them
+          !item.classList.contains('active')?item.classList.add('active'):item.classList.remove('active');
+        })}
+      }
+    });
+    buttonContainer.appendChild(button);
+    host.appendChild(buttonContainer);
+  }
+
+
+  /**
    * Removes a drilldown link from elements that are the lowest level of hierarchy and don't need it
    * @param {HTMLTableRowElement} row - row element in the table
    * */
@@ -184,6 +217,28 @@ class HierarchyBase extends AggregatedTable {
     this.search.highlight.apply(str);
   }
 
+
+  /**
+   * A debouncing function, used for cases when as `func` function needs to be called less often, after a certain `wait` timeout or `immediate`-ly
+   * @param {Function} func - the function that needs to be executed at a lesser rate
+   * @param {Number} [wait=300] - timeout after which the `func`tion executes
+   * @param {Boolean} [immediate=false] - flag to be set when function needs to be executed immediately (overrides `wait` timeout)
+   * @return {Function}
+   * */
+  static debounce (func, wait=300, immediate=true){
+    var timeout;
+    return ()=>{
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
 
 
 

@@ -3,20 +3,23 @@
  */
 let hierarchyCSS = require('./hierarchy.css');
 
-import TableData from 'r-aggregated-table/src/table-data';
+import SortTable from "r-sort-table/src/sort-table";
+import ReportalBase from 'r-reporal-base/src/reportal-base';
 import AggregatedTable from 'r-aggregated-table/src/aggregated-table';
+
 import HierarchyBase from './hierarchy-base';
 import HierarchyRowMeta from './hierarchy-row-meta';
-
+import TableSearch from "./table-search";
 
 class TAhierarchy extends HierarchyBase {
   constructor(options){
     let {
       source,
-      hierarchy,rowheaders,flat = false, flatNameDelimiter = '|',blocks=[], clearLinks = true, //hierarchy
+      hierarchy,rowheaders,flatEnabled=true,flat = false, flatNameDelimiter = '|',blocks=[], clearLinks = true, //hierarchy
       rowheaderColumnIndex=0,defaultHeaderRow,dataStripDirection='row',excludeBlock,excludeColumns,excludeRows, // aggregated Table
       sorting,
-      floatingHeader
+      floatingHeader,
+      search
     } = options;
 
     super({source,
@@ -25,7 +28,7 @@ class TAhierarchy extends HierarchyBase {
       floatingHeader
     });
 
-    if(source){this.source=source;} else { throw new ReferenceError('`source` table is not specified for TAHierarchyTable')}
+    //if(source){this.source=source;} else { throw new ReferenceError('`source` table is not specified for TAHierarchyTable')}
     if(hierarchy){this.hierarchy=hierarchy;} else { throw new ReferenceError('`hierarchy` is not specified for TAHierarchyTable')}
     if(rowheaders){this.rowheaders=rowheaders;} else { throw new ReferenceError('`rowheaders` are not specified for TAHierarchyTable')}
     this.column = rowheaderColumnIndex;
@@ -37,6 +40,15 @@ class TAhierarchy extends HierarchyBase {
     if(tbody.firstChild && tbody.firstChild.nodeType==3){
       tbody.removeChild(tbody.firstChild)
     }
+    [this.source,this.refSource].forEach(src=>{
+      if(src){
+        let hh = src.querySelector(`thead>tr>td:nth-child(${this.column+1})`);
+        hh.classList.add('reportal-hierarchical-header');
+        if(hh.children)[].slice.call(hh.children).forEach((item)=>{item.parentNode.removeChild(item)}); //clears hierarchy toggle buttons cloned from original header
+        this.addToggleButton(hh,'hierarchy-tree',false,'Tree View');
+        this.addToggleButton(hh,'hierarchy-flat',true,'Flat View');
+      }
+    });
 
     this.parsed = {}; //parsed hierarchy
     this.blocks = this.constructor.setUpBlocks.call(this,source,blocks,{
@@ -45,10 +57,51 @@ class TAhierarchy extends HierarchyBase {
       rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),
       result:this.parsed
     });
+
+    // add correlation between data and parsed hierarchy
+    TAhierarchy.mapHierarchy(this.parsed,this.data,this.multidimensional);
+
+    // add buttons for flattened mode
     this.constructor.setFlat.call(this,flat);
 
-    if(this.parsed){
-      TAhierarchy.mapHierarchy(this.parsed,this.data,this.multidimensional);
+    // initialise search
+    if(search && typeof search == 'object'){
+      this.search = new TableSearch(ReportalBase.mixin({
+        source,
+        refSource:this.refSource,
+        data:this.data,
+        maltidimensional:this.multidimensional
+      },search));
+    }
+
+    //add sorting not passed to aggregated-table
+    if(sorting && typeof sorting == 'object'){
+      let reorderFunction = e=>{
+        return this.constructor.reorderRows(this.data,this.source,this.multidimensional)
+      };
+      [this.source,this.refSource].forEach(target=>{
+        if(target){
+          target.addEventListener('reportal-table-sort', reorderFunction)
+        }
+      });
+
+      sorting.source = this.source;
+      sorting.refSource = this.refSource;
+      sorting.defaultHeaderRow = defaultHeaderRow;
+      sorting.data=this.data;
+      sorting.multidimensional = this.multidimensional;
+
+      /**
+       *  sorting object. See {@link SortTable}
+       *  @type {SortTable}
+       *  @memberOf AggregatedTable
+       *  */
+      this.sorting = new SortTable(sorting);
+      //
+      if(this.sorting.columns){
+        this.columns = this.sorting.columns;
+      }
+      // add listener to do reordering on sorting
     }
   }
 
@@ -101,8 +154,8 @@ class TAhierarchy extends HierarchyBase {
       let compoundID = block!==null? `${item.id}_${blockName}` : item.id; //this row is first in the block, which means it contains the first cell as a block cell and we need to indent the cell index when changing names in hierarchical column
       if(rowheaders[compoundID]){//we want to skip those which aren't in rowheaders
         let row = rows[rowheaders[compoundID].index],
-            firstInBlock = row.classList.contains('firstInBlock'); //this row is first in the block, which means it contains the first cell as a block cell and we need to indent the cell index when changing names in hierarchical column
-            //currentRowArray = HierarchyBase.stripRowData(row,firstInBlock,block);
+          firstInBlock = row.classList.contains('firstInBlock'); //this row is first in the block, which means it contains the first cell as a block cell and we need to indent the cell index when changing names in hierarchical column
+        //currentRowArray = HierarchyBase.stripRowData(row,firstInBlock,block);
         result[compoundID] = new HierarchyRowMeta({
           row,
           block: block,
@@ -137,6 +190,8 @@ class TAhierarchy extends HierarchyBase {
       }
     });
   }
+
+
 
 }
 

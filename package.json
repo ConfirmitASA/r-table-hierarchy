@@ -64,6 +64,8 @@
   },
   "dependencies": {
     "r-aggregated-table": "github:confirmitasa/r-aggregated-table",
-    "r-reporal-base": "github:confirmitasa/r-reportal-base"
+    "r-highlight": "github:confirmitasa/r-highlight",
+    "r-reporal-base": "github:confirmitasa/r-reportal-base",
+    "r-sort-table": "github:confirmitasa/r-sort-table"
   }
 }
