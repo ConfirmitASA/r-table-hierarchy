@@ -19,23 +19,23 @@ class HierarchyBase extends AggregatedTable {
       sorting,
       floatingHeader
     });
+    this._flatEvent = ReportalBase.newEvent('reportal-table-hierarchy-flat-view');
+    this._treeEvent = ReportalBase.newEvent('reportal-table-hierarchy-tree-view');
   }
 
   /**
    * Replaces category label in the array in the hierarchical column position and in the html row through meta. Replacing it in the array is important for sorting by category.
    * @param {Array} row - an item in the `this.data` Array
    * */
-  static updateCategoryLabel(row,flat,column){
-    if(row){
-      let cell = row.nameCell,
+  static updateCategoryLabel(flat,column){
+      let cell = this.nameCell,
         // we want to make sure if there is a link (drill-down content) then we populate the link with new title, else write to the last text node.
         label = cell.querySelector('a')? cell.querySelector('a') : cell.childNodes.item(cell.childNodes.length-1),
-        text = flat? row.flatName: row.name;
+        text = flat? this.flatName: this.name;
       // update the label in the array. Since we didn't include the block label, we need to offset it by one from the column in all cases.
-      row[column] = text;
+      if(this.data)this.data[column] = text;
       // update the label in the table.
       label.nodeType==3? label.nodeValue=text : label.textContent = text;
-    }
   }
 
   /**
@@ -118,6 +118,36 @@ class HierarchyBase extends AggregatedTable {
       newName = HierarchyBase.composeFlatParentName.call(this.parent, [this.parent.name, delimiter, newName].join(' '));
     }
     return newName
+  }
+
+  /**
+   * Sets `this.flat`, adds/removes `.reportal-heirarchy-flat-view` to the table and updates labels for hierarchy column to flat/hierarchical view
+   * @param {Boolean} val - value to set on `flat`
+   * */
+  static setFlat(val){
+    this.flat=val;
+    val ? this.source.classList.add('reportal-heirarchy-flat-view') : this.source.classList.remove('reportal-heirarchy-flat-view');
+    // we want to update labels to match the selected view
+    if(this.search && this.search.searching && this.search.highlight){this.search.highlight.remove();} //clear highlighting
+
+    if(this.parsed){
+      for(let rowID in this.parsed){
+        HierarchyBase.updateCategoryLabel.call(this.parsed[rowID],val,this.column);
+      }
+    }
+
+    //if the search is in progress, we need to model hierarchical/flat search which is basically redoing the search.
+    if(this.search && this.search.searching){
+      this.search.searching = false; // clears search
+      this.search.searching = true; //reinit search
+      this.searchRowheaders(this.search.query); //pass the same query
+    } else if(this.search && !this.search.searching && !val){
+      for(let rowID in this.parsed){
+        HierarchyRowMeta.toggleHiddenRows.call(this.parsed[rowID]);
+      }
+    }
+
+    val?this.source.dispatchEvent(this._flatEvent):this.source.dispatchEvent(this._treeEvent)
   }
 
 

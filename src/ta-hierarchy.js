@@ -32,7 +32,6 @@ class TAhierarchy extends HierarchyBase {
     if(rowheaders){this.rowheaders=rowheaders;} else { throw new ReferenceError('`rowheaders` are not specified for TAHierarchyTable')}
     this.column = rowheaderColumnIndex;
     this.flatNameDelimiter = flatNameDelimiter;
-    this.flat = flat;
 
     // add class to empty hierarchy header
     let tbody = this.source.querySelector("tbody");
@@ -43,6 +42,7 @@ class TAhierarchy extends HierarchyBase {
 
     this.parsed = {};
     this.blocks = this.constructor.setUpBlocks.call(this,source,blocks,{hierarchy:this.hierarchy,rowheaders:this.rowheaders,rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),result:this.parsed});
+    this.constructor.setFlat.call(this,flat);
     //TAhierarchy.parseHierarchy.call(this,);
 
     //TAhierarchy.mapHierarchy(this.parsed,this.data);
@@ -128,7 +128,7 @@ class TAhierarchy extends HierarchyBase {
 
         TAhierarchy.addCollapseButton(result[compoundID]);
         // initializes row headers according to `this.flat`
-        TAhierarchy.updateCategoryLabel(result[compoundID],this.flat,this.column);
+        TAhierarchy.updateCategoryLabel.call(result[compoundID],this.flat,this.column);
 
         if(level < 2)TAhierarchy.parseHierarchy.call(this,{hierarchy:item.subcells, rowheaders, level:level + 1, block, rows, result, parent:result[compoundID], clearLinks});
       }
