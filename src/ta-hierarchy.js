@@ -13,7 +13,7 @@ class TAhierarchy extends HierarchyBase {
   constructor(options){
     let {
       source,
-      hierarchy,rowheaders,flat = false, flatNameDelimiter = '|',blocks=[], //hierarchy
+      hierarchy,rowheaders,flat = false, flatNameDelimiter = '|',blocks=[], clearLinks = true, //hierarchy
       rowheaderColumnIndex=0,defaultHeaderRow,dataStripDirection='row',excludeBlock,excludeColumns,excludeRows, // aggregated Table
       sorting,
       floatingHeader
@@ -24,8 +24,6 @@ class TAhierarchy extends HierarchyBase {
       //sorting,
       floatingHeader
     });
-
-
 
     if(source){this.source=source;} else { throw new ReferenceError('`source` table is not specified for TAHierarchyTable')}
     if(hierarchy){this.hierarchy=hierarchy;} else { throw new ReferenceError('`hierarchy` is not specified for TAHierarchyTable')}
@@ -40,13 +38,18 @@ class TAhierarchy extends HierarchyBase {
       tbody.removeChild(tbody.firstChild)
     }
 
-    this.parsed = {};
-    this.blocks = this.constructor.setUpBlocks.call(this,source,blocks,{hierarchy:this.hierarchy,rowheaders:this.rowheaders,rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),result:this.parsed});
+    this.parsed = {}; //parsed hierarchy
+    this.blocks = this.constructor.setUpBlocks.call(this,source,blocks,{
+      hierarchy:this.hierarchy,
+      rowheaders:this.rowheaders,
+      rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),
+      result:this.parsed
+    });
     this.constructor.setFlat.call(this,flat);
-    //TAhierarchy.parseHierarchy.call(this,);
 
-    //TAhierarchy.mapHierarchy(this.parsed,this.data);
-
+    if(this.parsed){
+      TAhierarchy.mapHierarchy(this.parsed,this.data,this.multidimensional);
+    }
   }
 
   /**

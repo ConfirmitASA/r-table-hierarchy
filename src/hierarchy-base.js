@@ -33,7 +33,7 @@ class HierarchyBase extends AggregatedTable {
         label = cell.querySelector('a')? cell.querySelector('a') : cell.childNodes.item(cell.childNodes.length-1),
         text = flat? this.flatName: this.name;
       // update the label in the array. Since we didn't include the block label, we need to offset it by one from the column in all cases.
-      if(this.data)this.data[column] = text;
+      if(this.data)this.data[column].data = text;
       // update the label in the table.
       label.nodeType==3? label.nodeValue=text : label.textContent = text;
   }
@@ -149,6 +149,41 @@ class HierarchyBase extends AggregatedTable {
 
     val?this.source.dispatchEvent(this._flatEvent):this.source.dispatchEvent(this._treeEvent)
   }
+
+  /**
+   * This function runs through the data and looks for a match in `row.meta.flatName` (for flat view) or `row.meta.name` (for tree view) against the `str`.
+   * @param {String} str - expression to match against (is contained in `this.search.query`)
+   * */
+  searchRowheaders(str){
+    let regexp = new RegExp('('+str+')','i');
+    AggregatedTable.dimensionalDataIterator(this.data,this.multidimensional,(dataDimension)=>{
+      dataDimension.forEach(row=>{
+        if(this.flat){
+          HierarchyRowMeta.setMatches.call(row,regexp.test(row.flatName));
+          HierarchyRowMeta.setHidden.call(row,false)
+        } else {
+          // if it has a parent and maybe not matches and the parent has match, then let it and its children be displayed
+          let matches = regexp.test(row.name);
+          if(row.parent!=null && !matches && row.parent.matches){
+            // just in case it's been covered in previous iteration
+            if(!row.matches){HierarchyRowMeta.setMatches.call(row,true)}
+            else if(row.hasChildren && !row.collapsed){
+              HierarchyRowMeta.setCollapsed.call(row,true); //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
+            }
+            HierarchyRowMeta.setHidden.call(row,row.parent.collapsed);
+          } else { // if has no parent or parent not matched let's test it, maybe it can have a match, if so, display his parents and children
+            HierarchyRowMeta.setMatches.call(row,matches);
+            if(matches){
+              HierarchyBase.uncollapseParents.call(row);
+            }
+          }
+        }
+      });
+    });
+
+    this.search.highlight.apply(str);
+  }
+
 
 
 
