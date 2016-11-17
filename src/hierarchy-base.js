@@ -121,7 +121,7 @@ class HierarchyBase extends AggregatedTable {
     for(let rowID in parsed){
       let collapsed = parsed[rowID].collapsed;
       if(typeof collapsed != undefined && !collapsed){
-        HierarchyRowMeta.setCollapsed.call(row,true);
+        HierarchyRowMeta.setCollapsed.call(parsed[rowID],true);
       }
     }
   }

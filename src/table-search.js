@@ -20,7 +20,7 @@ import HierarchyRowMeta from './hierarchy-row-meta';
  * */
 export default class TableSearch{
   constructor(options){
-    let {source, refSource, immediate = false, timeout=300, searching=false, query='', target=null, visible=false, highlight=true, placeholder = 'Search categories...', data, multidimensional} = options;
+    let {source, refSource, immediate = false, timeout=300, searching=false, query='', target=null, visible=false, highlight=true, placeholder = 'Search categories...', parsed, flat} = options;
     this.source = source;
     this.refSource = refSource;
     this.timeout = timeout;
@@ -35,8 +35,8 @@ export default class TableSearch{
     [source,refSource].forEach(src=>{
       this.addSearchBox(src.querySelector('.reportal-hierarchical-header'), placeholder)
     });
-    this.data = data;
-    this.multidimensional = multidimensional;
+    this.parsed = parsed;
+    this.flat = flat;
   }
 
   set query(val){
@@ -65,7 +65,7 @@ export default class TableSearch{
   set searching(val){
     val?this.source.classList.add('reportal-hierarchy-searching'):this.source.classList.remove('reportal-hierarchy-searching');
     if(!val){
-      HierarchyBase.collapseAll(); // we want to collapse all expanded rows that could be expanded during search
+      HierarchyBase.collapseAll(this.parsed); // we want to collapse all expanded rows that could be expanded during search
     }
     this._searching = val;
   }
@@ -165,33 +165,31 @@ export default class TableSearch{
    * @param {String} str - expression to match against (is contained in `this.search.query`)
    * */
   searchRowheaders(str){
+    HierarchyBase.collapseAll(this.parsed); //null search
     let regexp = new RegExp('('+str+')','i');
-    AggregatedTable.dimensionalDataIterator(this.data,this.multidimensional,(dataDimension)=>{
-      dataDimension.forEach(dataItem=>{
-        let row = dataItem[0].row;
-        if(this.flat){
-          HierarchyRowMeta.setMatches.call(row,regexp.test(row.flatName));
-          HierarchyRowMeta.setHidden.call(row,false)
-        } else {
-          // if it has a parent and maybe not matches and the parent has match, then let it and its children be displayed
-          let matches = regexp.test(row.name);
-          if(row.parent!=null && !matches && row.parent.matches){
-            // just in case it's been covered in previous iteration
-            if(!row.matches){HierarchyRowMeta.setMatches.call(row,true)}
-            else if(row.hasChildren && !row.collapsed){
-              HierarchyRowMeta.setCollapsed.call(row,true); //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
-            }
-            HierarchyRowMeta.setHidden.call(row,row.parent.collapsed);
-          } else { // if has no parent or parent not matched let's test it, maybe it can have a match, if so, display his parents and children
-            HierarchyRowMeta.setMatches.call(row,matches);
-            if(matches){
-              HierarchyBase.uncollapseParents.call(row);
-            }
+    for(let id in this.parsed){
+      let row = this.parsed[id];
+      if(this.flat){
+        HierarchyRowMeta.setMatches.call(row,regexp.test(row.flatName));
+        HierarchyRowMeta.setHidden.call(row,false)
+      } else {
+        // if it has a parent and maybe not matches and the parent has match, then let it and its children be displayed
+        let matches = regexp.test(row.name);
+        if(row.parent!=null && !matches && row.parent.matches){
+          // just in case it's been covered in previous iteration
+          if(!row.matches){HierarchyRowMeta.setMatches.call(row,true)}
+          else if(row.hasChildren && !row.collapsed){
+            HierarchyRowMeta.setCollapsed.call(row,true); //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
+          }
+          HierarchyRowMeta.setHidden.call(row,row.parent.collapsed);
+        } else { // if has no parent or parent not matched let's test it, maybe it can have a match, if so, display his parents and children
+          HierarchyRowMeta.setMatches.call(row,matches);
+          if(matches){
+            HierarchyBase.uncollapseParents.call(row);
           }
         }
-      });
-    });
-
+      }
+    }
     if(this.highlight)this.highlight.apply(str);
   }
 

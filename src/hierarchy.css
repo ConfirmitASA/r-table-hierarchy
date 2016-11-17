@@ -1,90 +1,231 @@
-/*Hierarchycal styles*/
-/*coloring for even columns from end of table to compensate for uneven td count because of block headers*/
-.reportal-hierarchy-table>tbody>tr>td[class*=_dc]:nth-last-child(even){background: var(--primary-background-color,#f6f6f6);}
-.reportal-hierarchy-table tr.firstInBlock:not(:first-child)>td{
-  border-top:3px var(--divider-color,#ccc) double !important;
-  padding-top:2px !important;
-}
-.reportal-hierarchy-table tr.level0 {
-  font-weight: bold;
-}
-.reportal-hierarchy-table tr.firstInBlock>td:first-child {
-  /*dirty hack for breakdown first column to stay really narrow*/
-  white-space: normal;
-  background: var(--light-primary-color,#f0f2f5) ;
-  vertical-align: top;
-  width:30px;
-  padding:8px !important;
+:root{
+  --icon-hierarchy-tree:url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%2334393f%22%3E%3Cpath%20d%3D%22m21.5%205l-15.5%200%200%201.5%2015.5%200%200-1.5zm0%204.5l-9.7%200%200%201.5%209.7%200%200-1.5zM21.7%2014l-15.5%200%200%201.5%2015.5%200%200-1.5zm0%204.5l-9.7%200%200%201.5%209.7%200%200-1.5zM3%205c0%200%200.9%201.5%200.9%201.5%200%200%200.9-1.5%200.9-1.5%200%200-1.8%200-1.8%200zM3%2014c0%200%200.9%201.5%200.9%201.5%200%200%200.9-1.5%200.9-1.5%200%200-1.8%200-1.8%200z%22/%3E%3C/svg%3E);
+  --icon-hierarchy-flat:url(data:image/svg+xml,%3Csvg%20fill%3D%22%2334393f%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%2015h18v-2H3v2zm0%204h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z%22/%3E%3C/svg%3E);
+  --icon-search:url(data:image/svg+xml,%3Csvg%20fill%3D%22%23000000%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M15.5%2014h-.79l-.28-.27C15.41%2012.59%2016%2011.11%2016%209.5%2016%205.91%2013.09%203%209.5%203S3%205.91%203%209.5%205.91%2016%209.5%2016c1.61%200%203.09-.59%204.23-1.57l.27.28v.79l5%204.99L20.49%2019l-4.99-5zm-6%200C7.01%2014%205%2011.99%205%209.5S7.01%205%209.5%205%2014%207.01%2014%209.5%2011.99%2014%209.5%2014z%22/%3E%0A%3C/svg%3E);
+  --icon-add:url(data:image/svg+xml,%3Csvg%20fill%3D%22%2334393f%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M19%2013h-6v6h-2v-6H5v-2h6V5h2v6h6v2z%22/%3E%3C/svg%3E);
 }
 
-.reportal-hierarchy-table .reportal-hierarchical-header{
-  padding-right:100px;
+[class^=icon-] {
+  fill: var(--primary-text-color,#3F454C);
+  opacity:0.4;
+  width:24px;
+  height:24px;
+  margin-right:8px;
 }
-
-.reportal-hierarchy-table td.reportal-hierarchical-cell {padding-left:0}
-
-.reportal-hierarchy-table tr.level1>td.reportal-hierarchical-cell {
-  padding-left: 20px;
-}
-
-.reportal-hierarchy-table tr.level2>td.reportal-hierarchical-cell {
-  padding-left: 40px;
-}
-
-.reportal-collapse-button {
-  width: 24px;
-  height: 24px;
+[class*=" icon-"], [class^=icon-] {
   display: inline-block;
+  line-height: 1;
+  pointer-events: none;
   position: relative;
-  vertical-align: middle;
+  text-transform: none;
+  top: 1px;
+  transition: inherit;
 }
-.reportal-collapsed-row .reportal-collapse-button:before,
-.reportal-uncollapsed-row .reportal-collapse-button:before{
-  content:'';
-  position: absolute;
-  border-color: var(--secondary-text-color,#737B8E) transparent transparent;
-  border-style: solid;
-  border-width: 5px 5px 0;
-  display: block;
-  height: 0;
-  width: 0;
-  left:30%;
-  top:33%;
-  transition: .25s transform ease-in-out;
+.icon-hierarchy-tree,.icon-hierarchy-flat,.icon-search{
+  margin:0;
+  cursor:pointer;
+  pointer-events: all;
 }
-
-.reportal-collapsed-row .reportal-collapse-button,
-.reportal-uncollapsed-row .reportal-collapse-button{
-  cursor: pointer;
+.icon-hierarchy-tree{
+  background:var(--icon-hierarchy-tree);
 }
-
-.reportal-collapsed-row .reportal-collapse-button:before{
-  transform:rotate(-90deg);
+.icon-hierarchy-flat{
+  background:var(--icon-hierarchy-flat);
 }
-
-.reportal-no-children .reportal-collapse-button:before {
-  content:'';
-  width: 6px;
-  height: 6px;
-  border: 1px solid var(--disabled-text-color,#ccc);
-  border-radius: 50%;
-  position:absolute;
-  top:33%;
-  left:30%;
+.icon-search{
+  background:var(--icon-search);
+}
+.icon-add{
+  width:20px;
+  height:20px;
+  vertical-align:bottom;
+  background:var(--icon-add);
 }
 
+
+/*Hierarchical styles*/
+.reportal-hierarchy-table {
+
+  & td.reportal-hierarchical-cell {
+    padding-left:0;
+    white-space: nowrap;
+  }
+  & tr.level0 {
+    font-weight: bold;
+  }
+  & tr.level1>td.reportal-hierarchical-cell {
+    padding-left: 20px;
+  }
+  & tr.level2>td.reportal-hierarchical-cell {
+    padding-left: 40px;
+  }
+
+  & tr.firstInBlock:not(:first-child)>td{
+    border-top:3px var(--divider-color,#ccc) double !important;
+    padding-top:2px !important;
+  }
+  & tr.firstInBlock>td:first-child {
+    /*dirty hack for breakdown first column to stay really narrow*/
+    white-space: normal;
+    background: var(--light-primary-color,#f0f2f5) ;
+    vertical-align: top;
+    width:30px;
+    padding:8px !important;
+  }
+  & .reportal-hierarchical-header{
+    padding-right:100px;
+    position: relative;
+  }
+
+  & .reportal-collapse-button {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+  }
+  & .reportal-collapsed-row,
+  & .reportal-uncollapsed-row {
+    & .reportal-collapse-button {
+      cursor: pointer;
+      &:before {
+        content:'';
+        position: absolute;
+        border-color: var(--secondary-text-color,#737B8E) transparent transparent;
+        border-style: solid;
+        border-width: 5px 5px 0;
+        display: block;
+        height: 0;
+        width: 0;
+        left:30%;
+        top:33%;
+        transition: .25s transform ease-in-out;
+      }
+    }
+  }
+  & .reportal-collapsed-row .reportal-collapse-button:before{
+    transform:rotate(-90deg);
+  }
+  & .reportal-no-children .reportal-collapse-button:before {
+    content:'';
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--disabled-text-color,#ccc);
+    border-radius: 50%;
+    position:absolute;
+    top:33%;
+    left:30%;
+  }
+
+  & .btn.hierarchy-tree,
+  & .btn.hierarchy-flat,
+  & .btn.hierarchy-search{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 28px;
+    width: auto;
+    border: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    padding: 0;
+    line-height: initial;
+    display: block;
+    margin: 0 4px;
+    vertical-align: middle;
+  }
+
+  & .btn.hierarchy-tree{right:34px;}
+  & .btn.hierarchy-search{
+    width:26px;
+    right:64px;
+    height:26px;
+    margin: 1px 4px;
+    border-radius:0;
+    left:auto;
+    transition:  width,background-color,left,transform,opacity .25s ease-in-out;
+
+    &>input{
+      display:none;
+      background-color: transparent;
+      margin-left:-24px;
+      border: 0;
+      height: 20px;
+      font-size: 12px;
+      padding-left: 24px;
+      width: 1%;
+      vertical-align:top;
+      outline: 0;
+    }
+    &>.clear-button{
+      display:none;
+      vertical-align: top;
+      margin: 0;
+      width:24px;
+      height:24px;
+    }
+    &.visible{
+      width:auto;
+      background-color: var(--light-primary-color,#f0f2f5);
+      left:0;
+      padding: 2px 0;
+      border-bottom: 1px solid var(--divider-color,#ccc);
+
+      & >input{
+        display:inline-block;
+        width: calc(100% - 24px);
+      }
+      & > .icon-search{
+        pointer-events:none;
+        opacity: 1;
+      }
+      & > .clear-button{
+        pointer-events:all;
+        display: inline-block;
+        transform:rotate(-135deg);
+        cursor:pointer;
+      }
+      &>.icon-search, &>.clear-button{
+        top:-1px;
+      }
+    }
+  }
+  /*&>thead td.sortable:not(.hierarchy-search-visible){
+    cursor:pointer;
+    &.sorted.asc:after{
+      content: var(--icon-arrow-up);
+      padding-left:8px;
+    }
+    &.sorted.desc:after{
+      content: var(--icon-arrow-up);
+      transform:rotate(180deg);
+      padding-right:8px;
+    }
+    &:after{
+      display:inline-block;
+      bottom: -3px;
+      position: relative;
+      color: var(--primary-text-color);
+    }
+}*/
+
+}
+
+/* hide cells in hidden rows for hierarchical view to compensate for rowspanning block cells */
 .reportal-hierarchy-table:not(.reportal-heirarchy-flat-view)>tbody>tr.reportal-hidden-row>td:not([rowspan]){
   display: none;
 }
 
+/* override all of the above for flat view */
 .reportal-heirarchy-flat-view>tbody>tr>td{
   display:table-cell;
-&.reportal-hierarchical-cell{
-   padding-left:8px !important;
-&>.reportal-collapse-button{display:none}
+  &.reportal-hierarchical-cell{
+    padding-left:8px !important;
+    &>.reportal-collapse-button{display:none}
+  }
 }
-}
+/* override hidden behavior when searching */
 .reportal-hierarchy-searching>tbody>tr{
-&>td:not([rowspan]){display:none;}
-&.matched-search:not(.reportal-hidden-row)>td{display:table-cell}
+  &>td:not([rowspan]){display:none;}
+  &.matched-search:not(.reportal-hidden-row)>td{display:table-cell}
 }

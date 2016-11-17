@@ -69,8 +69,8 @@ class TAhierarchy extends HierarchyBase {
       this.search = new TableSearch(ReportalBase.mixin({
         source,
         refSource:this.refSource,
-        data:this.data,
-        maltidimensional:this.multidimensional
+        parsed:this.parsed,
+        flat:this.flat
       },search));
     }
 
@@ -111,7 +111,7 @@ class TAhierarchy extends HierarchyBase {
   static mapHierarchy(parsed,data,multidimensional){
     AggregatedTable.dimensionalDataIterator(data,multidimensional,(dataDimension)=>{
       dataDimension.forEach(row=>{
-        let rowId = Object.keys(parsed).find(o=>{return parsed[o].rowIndex == row[0].rowIndex});
+        let rowId = Object.keys(parsed).filter(o=>{return parsed[o].rowIndex == row[0].rowIndex})[0];
         parsed[rowId].data = row;
         row.forEach(cell=>cell.row = parsed[rowId]);
       }); // add row to fragment in the array order, this doesn't account for column stripped data yet
