@@ -1,13 +1,52 @@
-import AggregatedTableRowMeta from 'r-aggregated-table/src/aggregated-table-row-meta';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>hierarchy-row-meta.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Hierarchy.HierarchyRowMeta.html">HierarchyRowMeta</a><ul class='methods'><li data-type='method'><a href="Hierarchy.HierarchyRowMeta.html#.setCollapsed">setCollapsed</a></li><li data-type='method'><a href="Hierarchy.HierarchyRowMeta.html#.toggleHiddenRows">toggleHiddenRows</a></li></ul></li><li><a href="module.exports.html">exports</a></li></ul><h3>Events</h3><ul><li><a href="HierarchyRowMeta.html#event:reportal-table-hierarchy-collapsed">reportal-table-hierarchy-collapsed</a></li><li><a href="HierarchyRowMeta.html#event:event:reportal-table-hierarchy-uncollapsed">event:reportal-table-hierarchy-uncollapsed</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addSearchBox">addSearchBox</a></li><li><a href="global.html#clearSearch">clearSearch</a></li><li><a href="global.html#focusFollows">focusFollows</a></li><li><a href="global.html#hierarchyCSS">hierarchyCSS</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchRowheaders">searchRowheaders</a></li><li><a href="global.html#updateSearchTarget">updateSearchTarget</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">hierarchy-row-meta.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import AggregatedTableRowMeta from 'r-aggregated-table/src/aggregated-table-row-meta';
 import ReportalBase from "r-reporal-base/src/reportal-base";
 
 /**
  * @memberof Hierarchy
  * @extends AggregatedTableRowMeta
- * @prop {HTMLTableRowElement} row - reference to the `<tr>` element
+ * @prop {HTMLTableRowElement} row - reference to the `&lt;tr>` element
  * @prop {String} [flatName] - default string name ('|'-delimited) for hierarchy
  * @prop {String} name - a trimmed version of `flatName` containing label for this item without parent suffices
- * @prop {HTMLTableCellElement} nameCell - reference to the `<td>` element that contains the rowheader hierarchical label/name
+ * @prop {HTMLTableCellElement} nameCell - reference to the `&lt;td>` element that contains the rowheader hierarchical label/name
  * @prop {String} block - id of the block the row belongs to
  * @prop {String} parent - internal Reportal id of parent row
  * @prop {Number} level=0 - level of hierarchy, increments form `0`
@@ -20,10 +59,10 @@ import ReportalBase from "r-reporal-base/src/reportal-base";
 class HierarchyRowMeta extends AggregatedTableRowMeta{
   /**
    * This function builds a prototype for each row
-   * @param {HTMLTableRowElement} row - reference to the `<tr>` element
+   * @param {HTMLTableRowElement} row - reference to the `&lt;tr>` element
    * @param {String} [flatName] - default string name ('|'-delimited) for hierarchy
    * @param {String} name - a trimmed version of `flatName` containing label for this item without parent suffices
-   * @param {HTMLTableCellElement} nameCell - reference to the `<td>` element that contains the rowheader hierarchical label/name
+   * @param {HTMLTableCellElement} nameCell - reference to the `&lt;td>` element that contains the rowheader hierarchical label/name
    * @param {String} block - id of the block the row belongs to
    * @param {String} parent - internal Reportal id of parent row
    * @param {Number} level=0 - level of hierarchy, increments form `0`
@@ -75,7 +114,7 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
    * @fires HierarchyRowMeta#reportal-table-hierarchy-uncollapsed
    * */
   static setCollapsed(val){
-    if(typeof val != undefined && this.hasChildren){
+    if(typeof val != undefined &amp;&amp; this.hasChildren){
       this.collapsed=val;
       if(val){
         this.row.classList.add("reportal-collapsed-row");
@@ -108,11 +147,11 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
    * @param {Object} meta - meta in the row
    */
   static toggleHiddenRows(){
-    if(this.hasChildren && this.children){
+    if(this.hasChildren &amp;&amp; this.children){
       this.children.forEach(childRow=>{
         if(this.collapsed){                                         // if parent (`meta.row`) is collapsed
           HierarchyRowMeta.setHidden.call(childRow,true);           // hide all its children and
-          if(childRow.hasChildren && typeof childRow.collapsed != undefined){          // if a child can be collapsed
+          if(childRow.hasChildren &amp;&amp; typeof childRow.collapsed != undefined){          // if a child can be collapsed
             HierarchyRowMeta.setCollapsed.call(childRow,true);      // hide all its children and
             HierarchyRowMeta.toggleHiddenRows.call(childRow);       // repeat for its children
           }
@@ -135,3 +174,22 @@ HierarchyRowMeta._collapseEvent = ReportalBase.newEvent('reportal-table-hierarch
 HierarchyRowMeta._uncollapseEvent = ReportalBase.newEvent('reportal-table-hierarchy-uncollapsed');
 
 export default HierarchyRowMeta
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Nov 18 2016 16:58:14 GMT+0300 (Russia TZ 2 Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
