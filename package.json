@@ -1,6 +1,6 @@
 {
   "name": "r-table-hierarchy",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hiearchy plughin for aggregated tables that help presenting rowheaders in hierarchical form",
   "main": "src/main.js",
   "repository": {
@@ -14,7 +14,7 @@
     "clean": "rimraf dist build",
     "lint": "eslint src",
     "docs": "node_modules/.bin/jsdoc --configure jsdoc.conf --verbose",
-    "docs-commit": "git subtree push --prefix docs/r-table-hierarchy/0.1.1 origin gh-pages",
+    "docs-commit": "git subtree push --prefix docs/r-table-hierarchy/0.1.2 origin gh-pages",
     "test": "karma start --single-run --no-auto-watch karma.config.js",
     "report-coverage": "codecov -f coverage/lcov.info"
   },
