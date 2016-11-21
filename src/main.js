@@ -14,4 +14,4 @@ ReportalBase.mixin(window.Reportal,{
   TableSearch
 });
 
-export default Reportal
+export default TAhierarchy
