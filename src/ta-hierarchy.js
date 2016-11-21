@@ -57,7 +57,8 @@ class TAhierarchy extends HierarchyBase {
       hierarchy:this.hierarchy,
       rowheaders:this.rowheaders,
       rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),
-      result:this.parsed
+      result:this.parsed,
+      clearLinks
     });
 
     // add correlation between data and parsed hierarchy
