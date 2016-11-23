@@ -53,7 +53,7 @@ class TAhierarchy extends HierarchyBase {
     });
 
     this.parsed = {}; //parsed hierarchy
-    this.blocks = this.constructor.setUpBlocks.call(this,source,blocks,{
+    this.setUpBlocks(blocks,{
       hierarchy:this.hierarchy,
       rowheaders:this.rowheaders,
       rows:[].slice.call(source.parentNode.querySelectorAll(`table#${source.id}>tbody>tr`)),
@@ -281,7 +281,7 @@ class TAhierarchy extends HierarchyBase {
    * @param {!Array} options.array - changed table for children levels
    * @return {Array}
    */
-  static parseHierarchy(options){
+  parseHierarchy(options){
     let {hierarchy,rowheaders,level=0,block=null,result,rows,parent=null,clearLinks=false}=options;
     let blockName = null;
     if(block!==null){
@@ -324,7 +324,7 @@ class TAhierarchy extends HierarchyBase {
         // initializes row headers according to `this.flat`
         TAhierarchy.updateCategoryLabel.call(result[compoundID],this.flat,this.column);
 
-        if(level < 2)TAhierarchy.parseHierarchy.call(this,{hierarchy:item.subcells, rowheaders, level:level + 1, block, rows, result, parent:result[compoundID], clearLinks});
+        if(level < 2)this.parseHierarchy({hierarchy:item.subcells, rowheaders, level:level + 1, block, rows, result, parent:result[compoundID], clearLinks});
       }
     });
   }

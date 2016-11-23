@@ -52,22 +52,26 @@ class HierarchyBase extends AggregatedTable {
 
   /**
    * If `blocks` array is not empty, then we have blocks that rowspan across hierarchy instances. This function creates meta for blocks, and makes them accessible as properties in the array. Then it launches `parseHierarchy` per each block.
+   * @this HierarchyBase
    * @param {Array} data - initial data if passed
    * @param {Array} blocks - array of `blocks` passed in constructor
    * */
-  static setUpBlocks(source,blocks,options){
+  setUpBlocks(blocks,options){
     if(blocks && blocks.length>0){
-      var tdBlocks = source.querySelectorAll('.blockCell');
+      let tdBlocks = this.source.querySelectorAll('.blockCell');
       if(tdBlocks.length>0){
         for(let i=0;i<tdBlocks.length;i++){
           let block = blocks[i];
-          console.log(ReportalBase.mixin({block:{name:block, cell:tdBlocks[i]}},options));
-          this.constructor.parseHierarchy.call(this,ReportalBase.mixin({block:{name:block, cell:tdBlocks[i]}},options));
+          this.parseHierarchy(ReportalBase.mixin({block:{name:block, cell:tdBlocks[i]}},options));
         }
       }
     } else {
-      this.constructor.parseHierarchy.call(this,options);
+      this.parseHierarchy(options);
     }
+  }
+
+  parseHierarchy(...args){
+    throw new Error('"parseHierarchy" must be implemented in the inherited class');
   }
 
   /**
@@ -116,6 +120,7 @@ class HierarchyBase extends AggregatedTable {
 
   /*
    * Collapses all rows which were previously uncollapsed
+   * @param {Object} parsed - a parsed Hierarchy object where key is rowID from rowheaders and value is a {@link HierarchyRowMeta} object
    * **/
   static collapseAll(parsed){
     for(let rowID in parsed){
@@ -127,7 +132,7 @@ class HierarchyBase extends AggregatedTable {
 
   /**
    * Uncollapses the immediate parents of a row which `meta` is passed as an attribute. Utility function for serach to uncollapse all parents of a row that was matched during search
-   * @param {Object} meta - `row.meta` object. See {@link HierarchyTable#setupMeta} for details
+   * @this HierarchyRowMeta
    * */
   static uncollapseParents(){
     if(this.parent!=null){ // if `parent` String is not empty - then it's not top level parent.
@@ -139,8 +144,8 @@ class HierarchyBase extends AggregatedTable {
 
   /**
    * Creates a full flat name for a hierarchical level by concatenating `name` with `meta.parent.name` via a `delimiter`
-   * @param {Object} meta - meta data of the row
-   * @param {String=} [name=meta.name] - initial name to start with
+   * @this HierarchyRowMeta
+   * @param {String=} [name=this.name] - initial name to start with
    * @param {String=} [delimiter='|'] - delimiter to separate flattened labels from each other
    * @return {String} Returns a flat name starting with top level of hierarchy
    * */
@@ -154,6 +159,7 @@ class HierarchyBase extends AggregatedTable {
 
   /**
    * Sets `this.flat`, adds/removes `.reportal-heirarchy-flat-view` to the table and updates labels for hierarchy column to flat/hierarchical view
+   * @this HierarchyBase inherited object
    * @param {Boolean} val - value to set on `flat`
    * */
   static setFlat(val){
