@@ -65,7 +65,7 @@ class TAhierarchy extends HierarchyBase {
     TAhierarchy.mapHierarchy(this.parsed,this.data,this.multidimensional);
 
     // add buttons for flattened mode
-    this.constructor.setFlat.call(this,flat);
+    this.flat=flat;
 
     // initialise search
     if(search && typeof search == 'object'){

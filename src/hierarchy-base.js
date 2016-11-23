@@ -45,7 +45,7 @@ class HierarchyBase extends AggregatedTable {
   static addCollapseButton(row){
     let collapseButton = document.createElement("div");
     collapseButton.classList.add("reportal-collapse-button");
-    collapseButton.addEventListener('click', () => {HierarchyRowMeta.setCollapsed.call(row,!row.collapsed);});
+    collapseButton.addEventListener('click', () => {row.collapsed = !row.collapsed;});
     row.nameCell.insertBefore(collapseButton,row.nameCell.firstChild);
     row.nameCell.classList.add('reportal-hierarchical-cell');
   }
@@ -92,7 +92,7 @@ class HierarchyBase extends AggregatedTable {
     buttonContainer.title=title;
     buttonContainer.addEventListener('click',()=>{
       if(flat==this.flat){return;} else {
-        this.constructor.setFlat.call(this,flat);
+        this.flat=flat;
         // we want to get all hier. toggle buttons in both cloned header and the table itself
         let hierColumnButtons = this.source.parentNode.querySelectorAll('.reportal-hierarchical-header>.btn:not(.hierarchy-search)');
         if(hierColumnButtons){
@@ -125,22 +125,11 @@ class HierarchyBase extends AggregatedTable {
   static collapseAll(parsed){
     for(let rowID in parsed){
       if(typeof parsed[rowID].collapsed != undefined){
-        HierarchyRowMeta.setCollapsed.call(parsed[rowID],true);
+        parsed[rowID].collapsed = true;
       }
     }
   }
 
-  /**
-   * Uncollapses the immediate parents of a row which `meta` is passed as an attribute. Utility function for serach to uncollapse all parents of a row that was matched during search
-   * @this HierarchyRowMeta
-   * */
-  static uncollapseParents(){
-    if(this.parent!=null){ // if `parent` String is not empty - then it's not top level parent.
-      if(this.parent.collapsed){HierarchyRowMeta.setCollapsed.call(this.parent,false)}
-      this.parent.row.classList.add('matched-search');
-      HierarchyBase.uncollapseParents.call(this.parent);
-    }
-  }
 
   /**
    * Creates a full flat name for a hierarchical level by concatenating `name` with `meta.parent.name` via a `delimiter`
@@ -162,8 +151,8 @@ class HierarchyBase extends AggregatedTable {
    * @this HierarchyBase inherited object
    * @param {Boolean} val - value to set on `flat`
    * */
-  static setFlat(val){
-    this.flat=val;
+  set flat(val){
+    this._flat=val;
     val ? this.source.classList.add('reportal-heirarchy-flat-view') : this.source.classList.remove('reportal-heirarchy-flat-view');
     // we want to update labels to match the selected view
     if(this.search && this.search.searching && this.search.highlight){this.search.highlight.remove();} //clear highlighting
@@ -182,12 +171,13 @@ class HierarchyBase extends AggregatedTable {
       this.search.searchRowheaders(this.search.query); //pass the same query
     } else if(this.search && !this.search.searching && !val){
       for(let rowID in this.parsed){
-        HierarchyRowMeta.toggleHiddenRows.call(this.parsed[rowID]);
+        this.parsed[rowID].toggleHiddenRows();
       }
     }
 
     val?this.source.dispatchEvent(this._flatEvent):this.source.dispatchEvent(this._treeEvent)
   }
+  get flat(){return this._flat}
 
   /**
    * A debouncing function, used for cases when as `func` function needs to be called less often, after a certain `wait` timeout or `immediate`-ly
@@ -210,11 +200,6 @@ class HierarchyBase extends AggregatedTable {
       if (callNow) func.apply(context, args);
     };
   }
-
-
-
-
-
 }
 
 export default HierarchyBase

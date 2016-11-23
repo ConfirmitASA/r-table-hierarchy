@@ -161,6 +161,7 @@ export default class TableSearch{
 
   /**
    * This function runs through the data and looks for a match in `row.meta.flatName` (for flat view) or `row.meta.name` (for tree view) against the `str`.
+   * @this HierarchyBase
    * @param {String} str - expression to match against (is contained in `this.search.query`)
    * */
   searchRowheaders(str){
@@ -169,22 +170,22 @@ export default class TableSearch{
     for(let id in this.parsed){
       let row = this.parsed[id];
       if(this.flat){
-        HierarchyRowMeta.setMatches.call(row,regexp.test(row.flatName));
-        HierarchyRowMeta.setHidden.call(row,false)
+        row.matches=regexp.test(row.flatName);
+        row.hidden=false;
       } else {
         // if it has a parent and maybe not matches and the parent has match, then let it and its children be displayed
         let matches = regexp.test(row.name);
         if(row.parent!=null && !matches && row.parent.matches){
           // just in case it's been covered in previous iteration
-          if(!row.matches){HierarchyRowMeta.setMatches.call(row,true)}
+          if(!row.matches){row.matches=true}
           else if(row.hasChildren && !row.collapsed){
-            HierarchyRowMeta.setCollapsed.call(row,true); //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
+            row.collapsed=true; //if a parent row is uncollapsed and has a match, but the current item used to be a match and was uncollapsed but now is not a match
           }
-          HierarchyRowMeta.setHidden.call(row,row.parent.collapsed);
+          row.hidden=row.parent.collapsed;
         } else { // if has no parent or parent not matched let's test it, maybe it can have a match, if so, display his parents and children
-          HierarchyRowMeta.setMatches.call(row,matches);
+          row.matches=matches;
           if(matches){
-            HierarchyBase.uncollapseParents.call(row);
+            row.uncollapseParents();
           }
         }
       }

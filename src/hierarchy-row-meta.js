@@ -17,7 +17,7 @@ import ReportalBase from "r-reporal-base/src/reportal-base";
  * @prop {Boolean} [hasChildren] - flag set to rows which contain children
  * @prop {Array} children - child rows if `hasChildren == true
  * */
-class HierarchyRowMeta extends AggregatedTableRowMeta{
+class HierarchyRowMeta extends AggregatedTableRowMeta {
   /**
    * This function builds a prototype for each row
    * @param {HTMLTableRowElement} row - reference to the `<tr>` element
@@ -42,14 +42,14 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
     this.level=level;
     this.rowIndex = rowIndex;
 
-    HierarchyRowMeta.setHasChildren.call(this,hasChildren);
-    HierarchyRowMeta.setHidden.call(this,hidden);
-    HierarchyRowMeta.setCollapsed.call(this,collapsed);
-    HierarchyRowMeta.setMatches.call(this,matches);
+    this.hasChildren=hasChildren;
+    this.hidden=hidden;
+    this.collapsed =collapsed;
+    this.matches=matches;
   }
 
-  static setHasChildren(val){
-    this.hasChildren = val;
+  set hasChildren(val){
+    this._hasChildren = val;
     if(typeof val!=undefined){
       if(!val){
         this.row.classList.add('reportal-no-children')
@@ -58,9 +58,10 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
       }
     }
   }
+  get hasChildren(){return this._hasChildren}
 
-  static setHidden(val){
-    this.hidden=val;
+  set hidden(val){
+    this._hidden=val;
     if(typeof val!=undefined){
       if(val){
         this.row.classList.add("reportal-hidden-row")
@@ -69,30 +70,32 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
       }
     }
   }
+  get hidden(){return this._hidden}
 
   /**
    * @fires HierarchyRowMeta#reportal-table-hierarchy-collapsed
    * @fires HierarchyRowMeta#reportal-table-hierarchy-uncollapsed
    * */
-  static setCollapsed(val){
+  set collapsed(val){
     if(typeof val != undefined && this.hasChildren){
-      this.collapsed=val;
+      this._collapsed=val;
       if(val){
         this.row.classList.add("reportal-collapsed-row");
         this.row.classList.remove("reportal-uncollapsed-row");
-        HierarchyRowMeta.toggleHiddenRows.call(this);
+        this.toggleHiddenRows();
         this.row.dispatchEvent(this.constructor._collapseEvent);
       } else {
         this.row.classList.add("reportal-uncollapsed-row");
         this.row.classList.remove("reportal-collapsed-row");
-        HierarchyRowMeta.toggleHiddenRows.call(this);
+        this.toggleHiddenRows();
         this.row.dispatchEvent(this.constructor._uncollapseEvent);
       }
     }
   }
+  get collapsed(){return this._collapsed}
 
-  static setMatches(val){
-    this.matches=val;
+  set matches(val){
+    this._matches=val;
     if(val){
       this.row.classList.add("matched-search");
     } else {
@@ -102,26 +105,40 @@ class HierarchyRowMeta extends AggregatedTableRowMeta{
       }
     }
   }
+  get matches(){return this._matches}
+
 
   /**
    * Function to hide or show child rows of a collapsed/expanded row
-   * @param {Object} meta - meta in the row
    */
-  static toggleHiddenRows(){
+  toggleHiddenRows(){
     if(this.hasChildren && this.children){
       this.children.forEach(childRow=>{
         if(this.collapsed){                                         // if parent (`meta.row`) is collapsed
-          HierarchyRowMeta.setHidden.call(childRow,true);           // hide all its children and
+          childRow.hidden=true;           // hide all its children and
           if(childRow.hasChildren && typeof childRow.collapsed != undefined){          // if a child can be collapsed
-            HierarchyRowMeta.setCollapsed.call(childRow,true);      // hide all its children and
-            HierarchyRowMeta.toggleHiddenRows.call(childRow);       // repeat for its children
+            childRow.collapsed=true;      // hide all its children and
+            childRow.toggleHiddenRows();       // repeat for its children
           }
         } else {                                                    // otherwise make sure we show all children of an expanded row
-          HierarchyRowMeta.setHidden.call(childRow,false);          // hide all its children and
+          childRow.hidden=false;          // hide all its children and
         }
       });
     }
   }
+
+  /**
+   * Uncollapses the immediate parents of a row which `meta` is passed as an attribute. Utility function for serach to uncollapse all parents of a row that was matched during search
+   * @this HierarchyRowMeta
+   * */
+  uncollapseParents(){
+    if(this.parent!=null){ // if `parent` String is not empty - then it's not top level parent.
+      if(this.parent.collapsed){this.parent.collapsed=false}
+      this.parent.row.classList.add('matched-search');
+      this.parent.uncollapseParents();
+    }
+  }
+
 }
 /**
  * Event fired on `row` when it's collapsed
