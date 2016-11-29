@@ -2,7 +2,7 @@
  * Created by IvanP on 07.09.2016.
  */
 
-import ReportalBase from "r-reporal-base/src/reportal-base";
+import ReportalBase from "r-reportal-base";
 import TAhierarchy from "./ta-hierarchy";
 import TableSearch from "./table-search";
 import HierarchyBase from "./hierarchy-base";
