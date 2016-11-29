@@ -1,5 +1,5 @@
 import AggregatedTableRowMeta from 'r-aggregated-table/src/aggregated-table-row-meta';
-import ReportalBase from "r-reporal-base/src/reportal-base";
+import ReportalBase from "r-reportal-base";
 
 /**
  * @memberof Hierarchy
