@@ -2,7 +2,7 @@
  * Created by IvanP on 14.11.2016.
  */
 import AggregatedTable from 'r-aggregated-table';
-import ReportalBase from 'r-reporal-base/src/reportal-base';
+import ReportalBase from 'r-reportal-base';
 import HierarchyRowMeta from './hierarchy-row-meta';
 
 class HierarchyBase extends AggregatedTable {
