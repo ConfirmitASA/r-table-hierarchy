@@ -4,7 +4,7 @@
 let hierarchyCSS = require('./hierarchy.css');
 
 import SortTable from "r-sort-table/src/sort-table";
-import ReportalBase from 'r-reporal-base/src/reportal-base';
+import ReportalBase from 'r-reportal-base';
 import AggregatedTable from 'r-aggregated-table/src/aggregated-table';
 import TableFloatingHeader from "r-table-floating-header/src/table-floating-header";
 
