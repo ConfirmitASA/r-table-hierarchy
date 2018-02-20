@@ -22,7 +22,7 @@ config.module.loaders.push({
   loader:  ExtractTextPlugin.extract("style","css!postcss")
 });
 
-config.devtool = 'source-map';
+//config.devtool = 'inline-source-map';
 config.plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin({

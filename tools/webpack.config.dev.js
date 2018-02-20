@@ -21,7 +21,7 @@ config.module.loaders.push({
   //exclude: /node_modules/,
   loader:  ExtractTextPlugin.extract("style","css!postcss")
 });
-config.devtool = 'eval-source-map';
+config.devtool = 'inline-source-map';
 config.plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin({

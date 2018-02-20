@@ -46,6 +46,13 @@ class HierarchyBase extends AggregatedTable {
     let collapseButton = document.createElement("div");
     collapseButton.classList.add("reportal-collapse-button");
     collapseButton.addEventListener('click', () => {row.collapsed = !row.collapsed;});
+
+    /**
+    * added by EkaterinaT on 12/12/2017
+    * wrap label in span for easier access
+    * */
+
+    row.nameCell.innerHTML = '<span class="reportal-row-label">'+row.nameCell.innerHTML+'</span>';
     row.nameCell.insertBefore(collapseButton,row.nameCell.firstChild);
     row.nameCell.classList.add('reportal-hierarchical-cell');
   }
